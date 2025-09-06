@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Environment
+.env
+.venv/
+venv/
+
+# Data
+data/*
+!data/.gitkeep
+
+# Artifacts
+artifacts/*.joblib
+artifacts/*.json
+
+# Database
+*.db
+*.db-journal
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node/Next.js (frontend)
+node_modules/
+.next/
+frontend/node_modules/
+frontend/.next/
+frontend/.vercel/
+frontend/.env.local
+frontend/out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Backend Python packages
+backend/src/*.egg-info/
+backend/.coverage
+backend/htmlcov/
+
+# Logs
+logs/
+*.log
+
+# Build outputs
+build/
+dist/
