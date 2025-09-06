@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     # LLM provider
     llm_provider: str = "mock"  # or "openrouter"
     openrouter_api_key: Optional[str] = None
+    # LLM model (single setting for analysis + chat)
+    llm_model: str = "none"
 
     # Financial
     market_data_cache_ttl: int = 300
@@ -34,6 +36,9 @@ class Settings(BaseSettings):
 
     # CORS (comma-separated origins)
     cors_allowed_origins: Optional[str] = None
+
+    # Startup behavior
+    clear_db_on_startup: bool = True
 
     class Config:
         env_file = "../.env"

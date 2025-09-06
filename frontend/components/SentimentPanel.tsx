@@ -1,6 +1,8 @@
 'use client'
 
 import { Icon } from './Icon'
+import { useState } from 'react'
+import { SentimentChatPanel } from './SentimentChatPanel'
 import { useSentimentPanel } from '../hooks/useSentimentPanel'
 
 type Props = {
@@ -9,6 +11,7 @@ type Props = {
 
 export function SentimentPanel({ symbol }: Props) {
   const sentiment = useSentimentPanel()
+  const [isChatOpen, setIsChatOpen] = useState(false)
 
 
   return (
@@ -101,6 +104,14 @@ export function SentimentPanel({ symbol }: Props) {
               <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
                 {sentiment.sentimentData?.company_name} • Generated {new Date(sentiment.sentimentData?.analysis_timestamp || Date.now()).toLocaleDateString()}
               </p>
+              <div className="mt-3">
+                <button
+                  onClick={() => setIsChatOpen(true)}
+                  className="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm"
+                >
+                  <Icon name="message-square" className="h-4 w-4" /> Chat about this analysis
+                </button>
+              </div>
             </div>
             
             {/* Analysis Content */}
@@ -248,6 +259,15 @@ export function SentimentPanel({ symbol }: Props) {
           </div>
         )}
       </div>
+      {isChatOpen && sentiment.sentimentData && (
+        <SentimentChatPanel
+          ticker={symbol}
+          period={sentiment.sentimentPeriod}
+          sentimentAnalysisId={sentiment.sentimentData?.metadata?.analysis_id}
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+        />
+      )}
     </div>
   )
 }

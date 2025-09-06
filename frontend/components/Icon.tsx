@@ -21,6 +21,8 @@ import {
   Info,
   Calendar,
   DollarSign,
+  X,
+  MessageSquare,
   type LucideIcon
 } from 'lucide-react'
 
@@ -44,6 +46,8 @@ type IconName =
   | 'info'
   | 'calendar'
   | 'cash'
+  | 'x'
+  | 'message-square'
 
 const iconMap: Record<IconName, LucideIcon> = {
   chart: TrendingUp,
@@ -64,7 +68,9 @@ const iconMap: Record<IconName, LucideIcon> = {
   building: Building2,
   info: Info,
   calendar: Calendar,
-  cash: DollarSign
+  cash: DollarSign,
+  x: X,
+  'message-square': MessageSquare,
 } as const
 
 interface IconProps {

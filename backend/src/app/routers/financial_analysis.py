@@ -17,9 +17,11 @@ from models.model_factory import predict_with_model, list_available_models
 from services.cache_service import get_cache_service
 from llm.client import llm_client
 from llm.extensions.financial_sentiment import FinancialSentimentAnalyzer
+from config.settings import get_settings
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/financial", tags=["financial"])
+settings = get_settings()
 
 
 class PredictionRequest(BaseModel):
@@ -89,7 +91,7 @@ async def get_stock_sentiment(
             raise HTTPException(status_code=404, detail=f"Invalid ticker: {ticker}")
 
         cache_service = get_cache_service(db)
-        model_name = "gpt-4"
+        model_name = settings.llm_model
         cached_sentiment = cache_service.get_sentiment_analysis(ticker, period, model_name)
 
         if cached_sentiment:
@@ -137,9 +139,13 @@ async def get_stock_sentiment(
         }
 
         processing_time = analysis_result["metadata"].get("processing_time_ms")
-        cache_service.set_sentiment_analysis(
+        analysis_id = cache_service.set_sentiment_analysis(
             ticker, period, model_name, response_data, processing_time
         )
+        if analysis_id:
+            # Include analysis_id for chat linking
+            response_data.setdefault("metadata", {})
+            response_data["metadata"]["analysis_id"] = analysis_id
         logger.info("sentiment cached %s period=%s", ticker_info["symbol"], period)
 
         return APIResponse.success_response(

@@ -83,7 +83,12 @@ class FinancialCacheService:
             ).first()
             if cache_entry:
                 logger.debug("sentiment cache hit %s %s", ticker, model)
-                return cache_entry.analysis_data
+                # Inject analysis_id into metadata for frontend chat linking
+                data = dict(cache_entry.analysis_data or {})
+                meta = dict(data.get("metadata", {}))
+                meta["analysis_id"] = cache_entry.id
+                data["metadata"] = meta
+                return data
             else:
                 logger.debug("sentiment cache miss %s %s", ticker, model)
                 return None
@@ -91,7 +96,7 @@ class FinancialCacheService:
             logger.warning("sentiment cache get error: %s", e)
             return None
     
-    def set_sentiment_analysis(self, ticker: str, period: str, model: str, analysis_data: Dict[str, Any], processing_time_ms: float = None) -> bool:
+    def set_sentiment_analysis(self, ticker: str, period: str, model: str, analysis_data: Dict[str, Any], processing_time_ms: float = None) -> Optional[int]:
         try:
             ticker = ticker.upper()
             ttl_hours = self.cache_ttl.get('sentiment', 6)
@@ -114,13 +119,12 @@ class FinancialCacheService:
             self.db.add(cache_entry)
             self.db.commit()
             logger.debug("sentiment cache set %s %s", ticker, model)
-            return True
+            return cache_entry.id
         except Exception as e:
             logger.error("sentiment cache set error: %s", e)
             self.db.rollback()
-            return False
+            return None
 
 
 def get_cache_service(db: Session) -> FinancialCacheService:
     return FinancialCacheService(db)
-

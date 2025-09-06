@@ -1,22 +1,66 @@
 from __future__ import annotations
+
+import logging
 import os
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
-from config.settings import get_settings
 
-# Import routers and middleware
-from app.routers.financial_market import router as financial_market_router
-from app.routers.financial_analysis import router as financial_analysis_router
-from app.routers.financial_ws import router as websocket_router
 from app.middleware import ErrorHandlingMiddleware
+from app.routers.admin import router as admin_router
+from app.routers.chat import router as chat_router
+from app.routers.financial_analysis import router as financial_analysis_router
+from app.routers.financial_market import router as financial_market_router
+from app.routers.financial_ws import router as websocket_router
 from app.schemas import APIResponse
+from config.settings import get_settings
+from database.connection import SessionLocal
+from database.models import ChatMessage, ChatSession, SentimentAnalysisCache, StockDataCache
 
 settings = get_settings()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """App lifespan: clear DB on startup if enabled, then yield."""
+    # Use uvicorn logger so messages show in console
+    logger = logging.getLogger("uvicorn.error")
+    if getattr(settings, "clear_db_on_startup", False):
+        db = SessionLocal()
+        try:
+            cm = db.query(ChatMessage).count()
+            cs = db.query(ChatSession).count()
+            sc = db.query(StockDataCache).count()
+            se = db.query(SentimentAnalysisCache).count()
+            logger.info(
+                "Startup DB state: chat_messages=%s, chat_sessions=%s, stock_cache=%s, sentiment_cache=%s",
+                cm,
+                cs,
+                sc,
+                se,
+            )
+            logger.info("Clearing database tables on startup...")
+            db.query(ChatMessage).delete(synchronize_session=False)
+            db.query(ChatSession).delete(synchronize_session=False)
+            db.query(StockDataCache).delete(synchronize_session=False)
+            db.query(SentimentAnalysisCache).delete(synchronize_session=False)
+            db.commit()
+            logger.info("Database cleared.")
+        except Exception as e:
+            db.rollback()
+            logger.error("Failed to clear database on startup: %s", e)
+        finally:
+            db.close()
+    yield
+
+
 app = FastAPI(
     title="stock-analysis-platform",
     description="stock-analysis-platform API: real-time market data, predictions, and AI insights",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 # CORS configuration from settings (comma-separated) or sensible defaults
@@ -45,6 +89,10 @@ app.add_middleware(
 app.include_router(financial_market_router)
 app.include_router(financial_analysis_router)
 app.include_router(websocket_router)
+app.include_router(chat_router)
+app.include_router(admin_router)
+
+logger = logging.getLogger(__name__)
 
 
 @app.get("/", include_in_schema=False)

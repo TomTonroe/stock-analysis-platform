@@ -10,11 +10,13 @@ from typing import Dict, Any, Optional
 
 from data.financial_stocks_loader import load_financial_stocks_data, get_ticker_info
 from models.model_factory import list_available_models
+from config.settings import get_settings
 
 
 class FinancialSentimentAnalyzer:
     def __init__(self, llm_client):
         self.llm_client = llm_client
+        self.settings = get_settings()
 
     def analyze_stock_sentiment(self, ticker: str, period: str = "2y", include_predictions: bool = True, db=None) -> Dict[str, Any]:
         try:
@@ -27,13 +29,22 @@ class FinancialSentimentAnalyzer:
                 'technical_analysis': technical_data,
                 'predictions': prediction_data
             })
-            result = self.llm_client.call(task="financial_sentiment", prompt=analysis_prompt, model="openai/gpt-oss-120b:free", max_tokens=1500, temperature=0.1)
+            result = self.llm_client.call(
+                task="financial_sentiment",
+                prompt=analysis_prompt,
+                model=self.settings.llm_model,
+                max_tokens=1500,
+                temperature=0.1,
+            )
+            # If the LLM returns an error marker, surface a failure instead of embedding it in content
+            if str(result.get('output', '')).startswith('[ERROR]'):
+                raise RuntimeError(result.get('output'))
             analysis = self._parse_financial_analysis(result)
             analysis['metadata'] = {
                 'ticker': ticker.upper(),
                 'analysis_timestamp': datetime.now().isoformat(),
                 'data_period': period,
-                'llm_model': result.get('model', 'unknown'),
+                'llm_model': result.get('model', self.settings.llm_model),
                 'processing_time_ms': result.get('usage', {}).get('total_tokens', 0),
                 'data_sources': {
                     'financial_data': True,
@@ -185,4 +196,3 @@ Provide:
             'investment_recommendation': '',
             'analysis_text': text
         }
-
