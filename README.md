@@ -2,13 +2,15 @@
 
 A Next.js + FastAPI web application for exploring market data, company information, and running basic AI times-series predictions and LLM based sentiment analysis.
 
+![SAP Dashboard Overview](docs/chart.png)
+
 ## Core Features
 - Live candlestick chart with WebSocket streaming during market hours
 - Historical OHLCV charts with indicator overlays
 - Company summary with fundamentals, dividends/splits, and upcoming events
 - Time-series prediction models and LLM integration for sentiment analysis
 - Local caching (SQLite) and React Query persistence
-
+  
 ## Architecture
 
 ```
@@ -54,6 +56,12 @@ Frontend
 Prerequisites
 - Python 3.10+
 - Node.js 18+
+
+**Optional**: Create a conda environment for Python dependencies:
+```bash
+conda create -n stock-analysis python=3.10
+conda activate stock-analysis
+```
 
 Backend
 ```bash
