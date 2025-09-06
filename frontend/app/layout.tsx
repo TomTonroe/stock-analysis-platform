@@ -4,7 +4,7 @@ import { ThemeProvider } from 'next-themes'
 import { ReactQueryProvider } from '../components/providers'
 
 export const metadata: Metadata = {
-  title: 'stock-analysis-platform',
+  title: 'SAP - Stock Analysis Platform',
   description: 'Live market charts, AI forecasts, and company insights',
 }
 

@@ -30,7 +30,7 @@ export default function HomePage() {
         <header className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
-              Fin<span className="text-blue-600">Viewer</span>
+              <span className="text-slate-700 dark:text-slate-200">S</span><span className="text-blue-600 dark:text-blue-400">A</span><span className="text-green-600 dark:text-green-400">P</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Live charts, AI forecasts, and company insights</p>
           </div>
