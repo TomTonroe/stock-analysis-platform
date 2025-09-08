@@ -1,6 +1,6 @@
 # stock-analysis-platform
 
-A Next.js + FastAPI web application for exploring market data, company information, and running basic AI times-series predictions and LLM based sentiment analysis.
+A Next.js + FastAPI web application for exploring market data, company information, and running basic AI time-series predictions and LLM based sentiment analysis.
 
 ![SAP Dashboard Overview](docs/chart.png)
 
@@ -39,14 +39,14 @@ A Next.js + FastAPI web application for exploring market data, company informati
 
 Backend
 - FastAPI, Uvicorn
-- SQLAlchemy 2, Alembic, SQLite
+- SQLAlchemy, Alembic, SQLite
 - yfinance for market data
 - technicalindicators for RSI, SMA calculations
-- chronos‑forecasting (Chronos‑Bolt predictors)
-- OpenRouter LLM integration for sentiment analysis
+- chronos‑forecasting (Chronos‑Bolt time-series predictors)
+- OpenRouter LLM integration for sentiment analysis and chat functionality
 
 Frontend
-- Next.js 14, React 18, TypeScript
+- Next.js, React, TypeScript
 - Tailwind CSS with next-themes for dark mode
 - Plotly.js for interactive charts
 - @tanstack/react‑query (+ persist) for data caching
