@@ -8,11 +8,11 @@ import { useSentimentAnalysis } from './useStockQueries'
  * Replaces useSentiment with proper caching
  */
 export function useSentimentPanel() {
-  // Configuration state
-  const [sentimentPeriod, setSentimentPeriod] = useState('2y')
+  // Fixed analysis period for POC
+  const sentimentPeriod = '1y'
   const [currentTicker, setCurrentTicker] = useState('')
 
-  // React Query hook for sentiment analysis
+  // React Query hook for sentiment analysis (always 1y)
   const sentimentQuery = useSentimentAnalysis(currentTicker, sentimentPeriod, true)
 
   // Trigger sentiment analysis manually
@@ -25,10 +25,6 @@ export function useSentimentPanel() {
   }, [sentimentQuery])
 
   return {
-    // Configuration
-    sentimentPeriod,
-    setSentimentPeriod,
-    
     // Sentiment state (from React Query)
     sentimentStatus: sentimentQuery.isLoading ? 'loading' 
                     : sentimentQuery.isError ? 'error'

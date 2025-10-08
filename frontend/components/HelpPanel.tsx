@@ -51,7 +51,7 @@ export function HelpPanel() {
           ref={panelRef}
           role="dialog"
           aria-label="Help and keyboard shortcuts"
-          className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-4"
+          className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-4 z-60"
         >
           <div className="flex items-start justify-between">
             <div>

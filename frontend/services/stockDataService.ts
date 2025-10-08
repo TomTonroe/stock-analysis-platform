@@ -122,12 +122,49 @@ export interface SentimentAnalysis {
   analysis_timestamp: string
   sentiment_analysis: {
     executive_summary: string
-    sentiment_analysis: string
+    sentiment_analysis: string | {
+      label: string
+      confidence: number
+      drivers: string[]
+      full_text: string
+    }
     technical_outlook: string
     fundamental_assessment: string
-    investment_recommendation: string
+    investment_recommendation: string | {
+      action: string
+      confidence: number
+      time_horizon: string
+      rationale: string
+      entry_considerations?: string
+      exit_considerations?: string
+    }
     full_analysis: string
   }
+  structured_analysis?: any
+  risks?: Array<{
+    category: string
+    description: string
+    severity: string
+  }>
+  catalysts?: Array<{
+    event: string
+    expected_timing?: string
+    potential_impact: string
+  }>
+  news_context?: Array<{
+    title: string
+    source?: string
+    url?: string
+    published_at?: string
+    relevance_score?: number
+  }>
+  macro_context?: Array<{
+    title: string
+    source?: string
+    url?: string
+    published_at?: string
+    relevance_score?: number
+  }>
   metadata: Record<string, any>
   disclaimer: string
 }

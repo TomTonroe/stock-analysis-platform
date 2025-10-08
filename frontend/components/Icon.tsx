@@ -17,6 +17,8 @@ import {
   Sun, 
   Moon, 
   Zap, 
+  Search,
+  Star,
   Building2, 
   Info,
   Calendar,
@@ -42,6 +44,8 @@ type IconName =
   | 'sun'
   | 'moon'
   | 'bolt'
+  | 'search'
+  | 'star'
   | 'building'
   | 'info'
   | 'calendar'
@@ -65,6 +69,8 @@ const iconMap: Record<IconName, LucideIcon> = {
   sun: Sun,
   moon: Moon,
   bolt: Zap,
+  search: Search,
+  star: Star,
   building: Building2,
   info: Info,
   calendar: Calendar,

@@ -103,37 +103,46 @@ export function ChartPanel({
       {/* Time Period & Indicators */}
       {cached && (
         <div className="rounded-2xl p-4 bg-white/70 dark:bg-slate-900/70 shadow">
-          <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-sm text-slate-600 dark:text-slate-300 py-2 mr-2">Period:</span>
-            {periods.map(p => (
-              <button
-                key={p.value}
-                onClick={() => onPeriodChange(p.value)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  selectedPeriod === p.value
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
-
-            <span className="mx-3 h-6 w-px bg-slate-200 dark:bg-slate-700" />
-
-            <span className="text-sm text-slate-600 dark:text-slate-300">Indicators:</span>
-            <label className="text-xs inline-flex items-center gap-1 px-2 py-1 rounded-md cursor-pointer">
-              <input type="checkbox" checked={indicators.ma20} onChange={e => setIndicators(prev => ({ ...prev, ma20: e.target.checked }))} /> MA20
-            </label>
-            <label className="text-xs inline-flex items-center gap-1 px-2 py-1 rounded-md cursor-pointer">
-              <input type="checkbox" checked={indicators.ma50} onChange={e => setIndicators(prev => ({ ...prev, ma50: e.target.checked }))} /> MA50
-            </label>
-            <label className="text-xs inline-flex items-center gap-1 px-2 py-1 rounded-md cursor-pointer">
-              <input type="checkbox" checked={indicators.ma200} onChange={e => setIndicators(prev => ({ ...prev, ma200: e.target.checked }))} /> MA200
-            </label>
-            <label className="text-xs inline-flex items-center gap-1 px-2 py-1 rounded-md cursor-pointer">
-              <input type="checkbox" checked={indicators.rsi} onChange={e => setIndicators(prev => ({ ...prev, rsi: e.target.checked }))} /> RSI
-            </label>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+              <span className="text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">Period:</span>
+              <div className="flex items-center gap-1">
+                {periods.map(p => (
+                  <button
+                    key={p.value}
+                    onClick={() => onPeriodChange(p.value)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                      selectedPeriod === p.value
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-600 dark:text-slate-300">Indicators:</span>
+              {([
+                { key: 'ma20', label: 'MA20' },
+                { key: 'ma50', label: 'MA50' },
+                { key: 'ma200', label: 'MA200' },
+                { key: 'rsi', label: 'RSI' },
+              ] as const).map(({ key, label }) => (
+                <button
+                  key={key}
+                  onClick={() => setIndicators(prev => ({ ...prev, [key]: !prev[key as keyof typeof prev] }))}
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium border transition-colors ${
+                    (indicators as any)[key]
+                      ? 'bg-blue-600 border-blue-600 text-white'
+                      : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}

@@ -44,16 +44,20 @@ export function SentimentChatPanel({ ticker, period, sentimentAnalysisId, isOpen
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-y-0 right-0 w-[26rem] sm:w-[28rem] md:w-[32rem] lg:w-[36rem] bg-white dark:bg-slate-900 shadow-xl z-50 flex flex-col">
-      <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
-        <div>
-          <h3 className="font-semibold text-slate-800 dark:text-slate-200">Chat about {ticker}</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Discuss your sentiment analysis</p>
+    <div className="fixed inset-0 z-50 flex">
+      {/* Backdrop */}
+      <div className="flex-1 bg-slate-900/40" onClick={onClose} />
+      {/* Panel */}
+      <div className="inset-y-0 right-0 w-[26rem] sm:w-[28rem] md:w-[32rem] lg:w-[36rem] bg-white dark:bg-slate-900 shadow-xl flex flex-col animate-slide-in">
+        <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+          <div>
+            <h3 className="font-semibold text-slate-800 dark:text-slate-200">Chat about {ticker}</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Discuss your sentiment analysis</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+            <Icon name="x" className="h-5 w-5" />
+          </button>
         </div>
-        <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
-          <Icon name="x" className="h-5 w-5" />
-        </button>
-      </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {/* One-time warning banner at chat start */}
@@ -132,6 +136,14 @@ export function SentimentChatPanel({ ticker, period, sentimentAnalysisId, isOpen
           </button>
         </div>
       </form>
+      </div>
+      <style jsx global>{`
+        @keyframes slideIn {
+          from { transform: translateX(100%); opacity: 0.9; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        .animate-slide-in { animation: slideIn 180ms ease-out; }
+      `}</style>
     </div>
   )
 }
