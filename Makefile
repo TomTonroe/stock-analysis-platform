@@ -1,6 +1,6 @@
 PYTHON := python
 
-.PHONY: install dev api web lint fmt clean db-upgrade db-migrate
+.PHONY: install dev api web lint fmt clean
 
 # Installation
 install:
@@ -18,14 +18,7 @@ web:
 	@echo "Starting Next.js frontend..."
 	cd frontend && npm run dev
 
-# Database
-db-upgrade:
-	@echo "Applying database migrations..."
-	cd backend && PYTHONPATH=src alembic upgrade head
 
-db-migrate:
-	@echo "Creating new database migration..."
-	cd backend && PYTHONPATH=src alembic revision --autogenerate -m "Database changes"
 
 # Code quality
 lint:
