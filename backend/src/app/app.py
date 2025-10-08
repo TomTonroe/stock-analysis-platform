@@ -16,43 +16,24 @@ from app.routers.financial_market import router as financial_market_router
 from app.routers.financial_ws import router as websocket_router
 from app.schemas import APIResponse
 from config.settings import get_settings
-from database.connection import SessionLocal
-from database.models import ChatMessage, ChatSession, SentimentAnalysisCache, StockDataCache
+from database.connection import SessionLocal, engine, Base
 
 settings = get_settings()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """App lifespan: clear DB on startup if enabled, then yield."""
+    """App lifespan: drop and recreate all DB tables on startup; then yield."""
     # Use uvicorn logger so messages show in console
     logger = logging.getLogger("uvicorn.error")
-    if getattr(settings, "clear_db_on_startup", False):
-        db = SessionLocal()
-        try:
-            cm = db.query(ChatMessage).count()
-            cs = db.query(ChatSession).count()
-            sc = db.query(StockDataCache).count()
-            se = db.query(SentimentAnalysisCache).count()
-            logger.info(
-                "Startup DB state: chat_messages=%s, chat_sessions=%s, stock_cache=%s, sentiment_cache=%s",
-                cm,
-                cs,
-                sc,
-                se,
-            )
-            logger.info("Clearing database tables on startup...")
-            db.query(ChatMessage).delete(synchronize_session=False)
-            db.query(ChatSession).delete(synchronize_session=False)
-            db.query(StockDataCache).delete(synchronize_session=False)
-            db.query(SentimentAnalysisCache).delete(synchronize_session=False)
-            db.commit()
-            logger.info("Database cleared.")
-        except Exception as e:
-            db.rollback()
-            logger.error("Failed to clear database on startup: %s", e)
-        finally:
-            db.close()
+    # Always rebuild schema from models for a fresh start
+    try:
+        logger.info("Recreating database schema (drop_all -> create_all)...")
+        Base.metadata.drop_all(bind=engine)
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database schema recreated.")
+    except Exception as e:
+        logger.error("Failed to recreate database schema on startup: %s", e)
     yield
 
 
