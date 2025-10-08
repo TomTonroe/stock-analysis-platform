@@ -18,13 +18,12 @@ A Next.js + FastAPI web application for exploring market data, company informati
 │   ├── src/
 │   │   ├── app/              # App, routers, middleware, schemas
 │   │   ├── services/         # Cache service, data processing helpers
-│   │   ├── database/         # SQLAlchemy models & Alembic migrations
+│   │   ├── database/         # SQLAlchemy models (DB auto-recreated on startup)
 │   │   ├── data/             # yfinance loaders (ticker/info/history)
 │   │   ├── models/           # Chronos‑Bolt predictors
 │   │   ├── llm/              # LLM client & sentiment analyzer
 │   │   └── config/           # Configuration settings
 │   ├── pyproject.toml        # Python dependencies
-│   └── alembic.ini           # Database migrations
 ├── frontend/                 # Next.js frontend
 │   ├── app/                  # App router
 │   ├── components/           # ChartPanel, LiveChart, Summary, Sentiment
@@ -39,7 +38,7 @@ A Next.js + FastAPI web application for exploring market data, company informati
 
 Backend
 - FastAPI, Uvicorn
-- SQLAlchemy, Alembic, SQLite
+- SQLAlchemy, SQLite (schema auto-recreated on startup)
 - yfinance for market data
 - technicalindicators for RSI, SMA calculations
 - chronos‑forecasting (Chronos‑Bolt time-series predictors)
@@ -68,8 +67,7 @@ Backend
 # From repo root
 make install
 cp .env.example .env
-# Edit .env if needed (APP_NAME, DATABASE_URL, LLM_PROVIDER)
-make db-upgrade
+# Edit .env if needed (APP_NAME, DATABASE_URL, LLM_PROVIDER, NEWS_API_KEY)
 ```
 
 Frontend
@@ -100,6 +98,10 @@ DATABASE_URL=sqlite:///stock-analysis-platform.db
 LLM_PROVIDER=mock
 # LLM_PROVIDER=openrouter
 # OPENROUTER_API_KEY=sk-or-v1-your-key-here
+# News headlines (optional)
+# Get a key from https://newsapi.org to enable richer company + macro headlines
+# Without this, only company headlines via yfinance are used
+# NEWS_API_KEY=your_newsapi_key_here
 CORS_ALLOWED_ORIGINS=http://localhost:3000
 ```
 
@@ -121,3 +123,10 @@ POST /financial/predict
 GET  /financial/sentiment/{symbol}
 WS   /ws/{symbol}
 ```
+
+## News Headlines (optional)
+- If `NEWS_API_KEY` is set in `.env`, the backend uses NewsAPI to fetch:
+  - Company headlines (targeted by company name)
+  - Market/Macro headlines (broad market/economy context)
+- If not set, the backend falls back to yfinance for company headlines only.
+- Headlines are included in the analysis prompt and rendered in the UI.

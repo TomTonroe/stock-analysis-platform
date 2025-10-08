@@ -32,13 +32,14 @@ class Settings(BaseSettings):
     stock_data_path: str = "data/stocks/"
     default_stock_period: str = "2y"
     default_forecast_days: int = 30
+
+    # News & Context
     news_api_key: Optional[str] = None
 
     # CORS (comma-separated origins)
     cors_allowed_origins: Optional[str] = None
 
-    # Startup behavior
-    clear_db_on_startup: bool = True
+    # Startup behavior: DB schema is recreated on startup in app.lifespan
 
     class Config:
         env_file = "../.env"

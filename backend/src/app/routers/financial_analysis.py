@@ -100,6 +100,12 @@ async def get_stock_sentiment(
                 "company_name": ticker_info.get("longName", ticker),
                 "analysis_timestamp": cached_sentiment["metadata"]["analysis_timestamp"],
                 "sentiment_analysis": cached_sentiment.get("sentiment_analysis", {}),
+                # Include new fields for backward compatibility with updated frontend
+                "structured_analysis": cached_sentiment.get("structured_analysis", {}),
+                "risks": cached_sentiment.get("risks", []),
+                "catalysts": cached_sentiment.get("catalysts", []),
+                "news_context": cached_sentiment.get("news_context", []),
+                "macro_context": cached_sentiment.get("macro_context", []),
                 "metadata": cached_sentiment["metadata"],
                 "disclaimer": "This analysis is for educational purposes only and not investment advice. Always conduct your own research before making investment decisions.",
             }
@@ -134,6 +140,11 @@ async def get_stock_sentiment(
                 "investment_recommendation": analysis_result.get("investment_recommendation", ""),
                 "full_analysis": analysis_result.get("analysis_text", ""),
             },
+            "structured_analysis": analysis_result.get("structured_analysis", {}),
+            "risks": analysis_result.get("risks", []),
+            "catalysts": analysis_result.get("catalysts", []),
+            "news_context": analysis_result.get("news_context", []),
+            "macro_context": analysis_result.get("macro_context", []),
             "metadata": analysis_result["metadata"],
             "disclaimer": "This analysis is for educational purposes only and not investment advice. Always conduct your own research before making investment decisions.",
         }
@@ -150,7 +161,7 @@ async def get_stock_sentiment(
 
         return APIResponse.success_response(
             data=response_data,
-            message=f"AI sentiment analysis completed for {ticker_info.get('LongName', ticker)}",
+            message=f"AI sentiment analysis completed for {ticker_info.get('longName', ticker)}",
         )
 
     except HTTPException:

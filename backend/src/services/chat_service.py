@@ -105,9 +105,9 @@ class ChatService:
         # Persist user message
         self.add_message(session_id, "user", user_message)
 
-        # Build context + structured messages
+        # Build context + structured messages (pass db for news caching)
         context = self._build_chat_context(session)
-        messages = self._build_chat_messages(context, user_message)
+        messages = self._build_chat_messages(context, user_message, db=self.db)
 
         # Call LLM with structured messages
         result = self.llm_client.call(
@@ -147,20 +147,63 @@ class ChatService:
             ],
         }
 
-    def _build_chat_messages(self, context: Dict[str, Any], user_message: str) -> List[Dict[str, str]]:
-        """Create OpenAI-compatible message array with system + history + user."""
+    def _build_chat_messages(
+        self,
+        context: Dict[str, Any],
+        user_message: str,
+        db: Optional[Session] = None
+    ) -> List[Dict[str, str]]:
+        """Create OpenAI-compatible message array with system + history + user + news context."""
         sentiment = context.get("sentiment_analysis", {})
         ticker = context.get("ticker")
-        system_msg = {
-            "role": "system",
-            "content": (
-                "You are a financial analyst AI assistant discussing your previous analysis of "
-                f"{ticker}. Provide educational insights, reference prior analysis, maintain a professional tone, "
-                "and avoid personalized investment advice.\n\n"
-                "ORIGINAL ANALYSIS CONTEXT:\n"
-                + json.dumps(sentiment.get("sentiment_analysis", sentiment), indent=2)
-            ),
-        }
+
+        # Build base system message
+        system_content = (
+            "You are a financial analyst AI assistant discussing your previous analysis of "
+            f"{ticker}. Provide educational insights, reference prior analysis, maintain a professional tone, "
+            "and avoid personalized investment advice.\n\n"
+            "ORIGINAL ANALYSIS CONTEXT:\n"
+            + json.dumps(sentiment.get("sentiment_analysis", sentiment), indent=2)
+        )
+
+        # Fetch and append recent news context using the context builder
+        # This ensures proper caching and consistent news fetching across the app
+        try:
+            from context.context_builder import enrich_with_news, format_news_for_prompt
+            from llm.schemas import NewsHeadline
+
+            # Use enrich_with_news to get cached or fresh news (limit to 3 for chat)
+            base_context = {"ticker": ticker}
+            enriched = enrich_with_news(
+                base_context,
+                ticker,
+                include_company_news=True,
+                include_macro_news=False,  # Skip macro news in chat for brevity
+                company_limit=3,
+                macro_limit=0,
+                db=db  # Pass db session for caching
+            )
+
+            company_headlines_data = enriched.get("news_context", {}).get("company_headlines", [])
+
+            if company_headlines_data:
+                # Convert dicts back to NewsHeadline objects for formatting
+                company_headlines = [NewsHeadline(**h) for h in company_headlines_data]
+                formatted_news = format_news_for_prompt(company_headlines, max_headlines=3)
+                system_content += (
+                    "\n\n"
+                    "LATEST NEWS CONTEXT (for reference in discussion):\n"
+                    + formatted_news
+                    + "\n\n"
+                    "Note: Use this news context to provide informed answers, but focus on "
+                    "educational discussion rather than making specific trading recommendations."
+                )
+        except Exception as e:
+            # News fetch failure shouldn't break chat - log and continue
+            import logging
+            logging.getLogger(__name__).warning(f"Failed to fetch news for chat ({ticker}): {str(e)}")
+
+        system_msg = {"role": "system", "content": system_content}
 
         history = context.get("conversation_history", [])[-10:]
         history_msgs = [{"role": h["role"], "content": h["content"]} for h in history]
